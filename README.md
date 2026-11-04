@@ -1,6 +1,6 @@
 # DeepSeek-V3.2 kernels on a GTX 1650 (Turing, sm_75)
 
-INT8 ports of the three FP8 TileLang kernels in [DeepSeek-V3.2-Exp `inference/kernel.py`](../DeepSeek-V3.2-Exp/inference/kernel.py),
+INT8 ports of the three FP8 TileLang kernels in [DeepSeek-V3.2-Exp `inference/kernel.py`](https://github.com/deepseek-ai/DeepSeek-V3.2-Exp/blob/main/inference/kernel.py),
 written in Triton for a 4 GB laptop GPU that has no FP8, no BF16 converts and no tensor cores.
 
 | Kernel | What it does in V3.2 |
@@ -108,4 +108,21 @@ pip install "triton-windows<3.3" pytest
 python roofline.py
 python -m pytest -q
 python bench.py
+
+# accuracy experiments (need: pip install safetensors tokenizers pyarrow huggingface_hub transformers)
+huggingface-cli download Qwen/Qwen2.5-0.5B-Instruct
+huggingface-cli download Qwen/Qwen2.5-1.5B-Instruct
+huggingface-cli download Yelp/yelp_review_full --repo-type dataset
+cd experiments
+python indexer_quant.py Qwen2.5-0.5B-Instruct
+python indexer_quant.py Qwen2.5-1.5B-Instruct
+python indexer_mechanism.py 0.5b 1.5b
+cd .. && python make_charts.py
 ```
+
+The code text is `transformers/modeling_utils.py` from the installed package (read as a file, not imported), so exact
+numbers depend on the transformers version (5.22.1 here).
+
+## License
+
+MIT. The kernels follow the structure of DeepSeek's TileLang kernels in DeepSeek-V3.2-Exp (MIT).
