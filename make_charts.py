@@ -102,35 +102,78 @@ ax.set_xlabel("Tokens per batch (M)"); ax.set_ylabel("Tera-operations per second
 ax.yaxis.grid(True, color=GRID, linewidth=1); ax.set_axisbelow(True); ax.set_ylim(0, 13)
 ax.legend(loc="upper left", frameon=False, fontsize=11.5)
 fig.savefig(os.path.join(OUT, "4_gemm_scaling.png")); plt.close(fig)
-# 5. Indexer accuracy: which keys each number format loses, top-2048 ---------------------------------------
-iq = os.path.join(HERE, "results", "indexer_quant.json")
-if os.path.exists(iq):
-    R = json.load(open(iq))["rows"]; K = 2048
-    trivial = {l for l in {r["layer"] for r in R}
-               if all(r["recall"] == 1.0 for r in R if r["layer"] == l and r["k"] == K and r["fmt"] != "window")}
-    def miss(fmt, rot):
-        s = [r["recall"] for r in R if r["k"] == K and r["fmt"] == fmt and r["rot"] == rot and r["layer"] not in trivial]
-        return 100 * (1 - sum(s) / len(s))
-    fmts = [("BF16", "bf16"), ("FP8 e4m3", "fp8"), ("FP8, power-of-2 scales", "fp8_ue8m0"), ("INT8", "int8"),
-            ("INT6", "int6")]
-    fig = frame("INT8 + Hadamard loses 5x fewer indexer keys than FP8 + Hadamard",
-                f"Share of the full-precision top-2048 keys each format drops, in the {24 - len(trivial)} of 24 "
-                "layers where the choice is not trivial",
-                foot="Proxy, not DeepSeek's trained indexer: real Qwen2.5-0.5B attention q/k (64 dims), uniform head "
-                     "weights, 4 texts x 8,192 tokens, 256 queries each")
-    ax = fig.add_axes([0.25, 0.16, 0.69, 0.64])
-    ys = list(range(len(fmts)))[::-1]; hgt = 0.36
-    for off, rot, c, lab in ((hgt / 2, "none", BASE, "No rotation"), (-hgt / 2, "hadamard", S1, "Hadamard rotation")):
-        vals = [miss(f, rot) for _, f in fmts]
+# 5-7. Indexer precision experiments (experiments/indexer_quant.py, indexer_mechanism.py) ------------------------
+PROXY = ("Proxy, not DeepSeek's trained indexer: real post-RoPE q/k from Qwen2.5, uniform head weights, "
+         "4 texts x 8,192 tokens, 256 queries each")
+IQ = {t: json.load(open(os.path.join(HERE, "results", f"indexer_quant_{t}.json"))) for t in ("0.5b", "1.5b")
+      if os.path.exists(os.path.join(HERE, "results", f"indexer_quant_{t}.json"))}
+
+
+def lost(d, fmt, rot, center="none", K=2048):
+    R = [r for r in d["rows"] if r["k"] == K]
+    triv = {l for l in range(d["layers"]) if all(r["recall"] == 1.0 for r in R if r["layer"] == l and r["fmt"] != "window")}
+    s = [r["recall"] for r in R if (r["fmt"], r["rot"], r["center"]) == (fmt, rot, center) and r["layer"] not in triv]
+    return 100 * (1 - sum(s) / len(s))
+
+
+def grouped(ax, rows, series, xmax, xlabel, legend="upper right"):
+    """rows: [label]; series: [(legend, color, [values per row])]."""
+    ys = list(range(len(rows)))[::-1]; hgt = 0.8 / len(series)
+    for i, (lab, c, vals) in enumerate(series):
+        off = (len(series) - 1) / 2 * hgt - i * hgt
         ax.barh([y + off for y in ys], vals, height=hgt, color=c, edgecolor=SURFACE, linewidth=2, label=lab)
         for y, v in zip(ys, vals):
-            ax.text(v + 0.06, y + off, f"{v:.2f}%", va="center", fontsize=11.5, color=INK)
-    ax.set_yticks(ys); ax.set_yticklabels([f[0] for f in fmts], fontsize=13, color=INK); ax.tick_params(axis="y", length=0)
+            ax.text(v + xmax * 0.01, y + off, f"{v:.2f}%", va="center", fontsize=11.5, color=INK)
+    ax.set_yticks(ys); ax.set_yticklabels(rows, fontsize=13, color=INK); ax.tick_params(axis="y", length=0)
     ax.spines["left"].set_visible(False); ax.xaxis.grid(True, color=GRID, linewidth=1); ax.set_axisbelow(True)
-    ax.set_xlim(0, max(miss(f, r) for _, f in fmts for r in ("none", "hadamard")) * 1.25)
-    ax.set_xlabel("Top-2048 keys lost vs full precision, % (lower is better)")
-    ax.legend(loc="upper right", frameon=False, fontsize=12)
-    ax.annotate("DeepSeek-V3.2 ships this one", xy=(miss("fp8", "hadamard") + 0.55, ys[1] - hgt / 2), fontsize=11.5,
-                color=INK2, va="center")
+    ax.set_xlim(0, xmax); ax.set_xlabel(xlabel); ax.legend(loc=legend, frameon=False, fontsize=12)
+
+
+if len(IQ) == 2:
+    # 5. Post 1: INT8 vs FP8, both models
+    cfgs = [("FP8", "fp8", "none"), ("FP8 + Hadamard\n(DeepSeek-V3.2's setup)", "fp8", "hadamard"),
+            ("INT8", "int8", "none"), ("INT8 + Hadamard", "int8", "hadamard")]
+    series = [(f"Qwen2.5-1.5B (128-dim heads, as V3.2)", S1, [lost(IQ["1.5b"], f, r) for _, f, r in cfgs]),
+              (f"Qwen2.5-0.5B (64-dim heads)", S2, [lost(IQ["0.5b"], f, r) for _, f, r in cfgs])]
+    fig = frame("INT8 drops 4-5x fewer of the indexer's top keys than FP8",
+                "DeepSeek-V3.2's indexer quantization on real attention vectors: share of the full-precision top-2048 "
+                "keys lost", foot=PROXY)
+    ax = fig.add_axes([0.25, 0.16, 0.69, 0.64])
+    grouped(ax, [c[0] for c in cfgs], series, 5.0, "Top-2048 keys lost vs full precision, % (lower is better)",
+            legend="lower right")
     fig.savefig(os.path.join(OUT, "5_indexer_precision.png")); plt.close(fig)
+
+    # 6. Post 2: centering the keys
+    d = IQ["1.5b"]
+    cfgs = [("FP8 + Hadamard", "fp8"), ("INT8 + Hadamard", "int8"), ("INT6 + Hadamard", "int6"), ("INT4 + Hadamard", "int4")]
+    series = [("As DeepSeek-V3.2 quantizes", BASE, [lost(d, f, "hadamard") for _, f in cfgs]),
+              ("Mean key subtracted first", S1, [lost(d, f, "hadamard", "k") for _, f in cfgs])]
+    fig = frame("Subtract the mean key before quantizing: 3-6x fewer indexer errors",
+                "Qwen2.5-1.5B, top-2048. Most of the gain is in layer 0, whose keys share a huge offset; elsewhere ~2x",
+                foot="Mean key from the first 1,024 tokens, kept in fp32; q . mean is added back, so the score is "
+                     "unchanged. Same proxy setup as the INT8 vs FP8 chart")
+    ax = fig.add_axes([0.2, 0.16, 0.74, 0.64])
+    grouped(ax, [c[0] for c in cfgs], series, 8.0, "Top-2048 keys lost vs full precision, % (lower is better)")
+    fig.savefig(os.path.join(OUT, "6_indexer_centering.png")); plt.close(fig)
+
+mech = os.path.join(HERE, "results", "indexer_mechanism.json")
+if os.path.exists(mech):
+    # 7. Post 3: why rotation helps INT8 and can hurt FP8
+    syn = [r for r in json.load(open(mech))["synthetic"] if r["offset"] == "1 chan"]
+    cs = [r["c"] for r in syn]
+    fig = frame("Why Hadamard rotation helps INT8 but can hurt FP8",
+                "Random keys plus one large channel. INT8's step is set by the biggest value; FP8's step follows each "
+                "value", foot="Synthetic: keys ~ N(0, I) + offset in one of 128 channels, 6 random query heads, "
+                "top-512 of 8,192 keys")
+    ax = fig.add_axes([0.08, 0.16, 0.6, 0.64])
+    for key, lab, c, mk in (("fp8_hadamard_none", "FP8 + Hadamard", S2, "o"), ("int8_none_none", "INT8", S4, "D"),
+                            ("fp8_none_none", "FP8", S3, "^"), ("int8_hadamard_none", "INT8 + Hadamard", S1, "s")):
+        ys = [r[key] for r in syn]
+        ax.plot(cs, ys, color=c, marker=mk, markersize=9, linewidth=2, markeredgecolor=SURFACE, markeredgewidth=2, label=lab)
+        ax.text(cs[-1] + 0.12, ys[-1], f"{lab}  {ys[-1]:.1f}%", va="center", fontsize=11.5, color=INK)
+    ax.set_xlabel("Size of the shared offset (x the norm of the random part)")
+    ax.set_ylabel("Top-512 keys lost, %"); ax.set_ylim(0, 10.5)
+    ax.yaxis.grid(True, color=GRID, linewidth=1); ax.set_axisbelow(True)
+    ax.legend(loc="upper left", frameon=False, fontsize=11.5)
+    fig.savefig(os.path.join(OUT, "7_indexer_mechanism.png")); plt.close(fig)
 print("wrote", sorted(os.listdir(OUT)))
