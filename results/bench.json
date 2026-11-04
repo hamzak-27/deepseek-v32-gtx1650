@@ -1,0 +1,1104 @@
+{
+ "device": "NVIDIA GeForce GTX 1650",
+ "torch": "2.6.0+cu124",
+ "triton": "3.2.0",
+ "date": "2026-11-04",
+ "rows": [
+  {
+   "kernel": "act_quant",
+   "shape": "16x7168 float32",
+   "impl": "torch eager",
+   "ms": 0.0472,
+   "rate": 12.23,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "16x7168 float32",
+   "impl": "triton int8",
+   "ms": 0.0132,
+   "rate": 43.69,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "16x7168 float32",
+   "impl": "triton int8 K-major (v2)",
+   "ms": 0.0134,
+   "rate": 42.93,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "16x7168 bfloat16",
+   "impl": "torch eager",
+   "ms": 0.0466,
+   "rate": 7.47,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "16x7168 bfloat16",
+   "impl": "triton int8",
+   "ms": 0.0116,
+   "rate": 30.03,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "16x7168 bfloat16",
+   "impl": "triton int8 K-major (v2)",
+   "ms": 0.0124,
+   "rate": 27.93,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "256x7168 float32",
+   "impl": "torch eager",
+   "ms": 0.5046,
+   "rate": 18.3,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "256x7168 float32",
+   "impl": "triton int8",
+   "ms": 0.0632,
+   "rate": 146.16,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "256x7168 float32",
+   "impl": "triton int8 K-major (v2)",
+   "ms": 0.1059,
+   "rate": 87.21,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "256x7168 bfloat16",
+   "impl": "torch eager",
+   "ms": 0.5916,
+   "rate": 9.4,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "256x7168 bfloat16",
+   "impl": "triton int8",
+   "ms": 0.0405,
+   "rate": 137.3,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "256x7168 bfloat16",
+   "impl": "triton int8 K-major (v2)",
+   "ms": 0.0949,
+   "rate": 58.61,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "2048x7168 float32",
+   "impl": "torch eager",
+   "ms": 3.8279,
+   "rate": 19.29,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "2048x7168 float32",
+   "impl": "triton int8",
+   "ms": 0.5528,
+   "rate": 133.61,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "2048x7168 float32",
+   "impl": "triton int8 K-major (v2)",
+   "ms": 0.7144,
+   "rate": 103.39,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "2048x7168 bfloat16",
+   "impl": "torch eager",
+   "ms": 4.4713,
+   "rate": 9.95,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "2048x7168 bfloat16",
+   "impl": "triton int8",
+   "ms": 0.3871,
+   "rate": 114.95,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "2048x7168 bfloat16",
+   "impl": "triton int8 K-major (v2)",
+   "ms": 0.6738,
+   "rate": 66.04,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "8192x7168 float32",
+   "impl": "torch eager",
+   "ms": 15.1296,
+   "rate": 19.53,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "8192x7168 float32",
+   "impl": "triton int8",
+   "ms": 2.3115,
+   "rate": 127.81,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "8192x7168 float32",
+   "impl": "triton int8 K-major (v2)",
+   "ms": 2.8114,
+   "rate": 105.09,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "8192x7168 bfloat16",
+   "impl": "torch eager",
+   "ms": 17.7991,
+   "rate": 10.0,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "8192x7168 bfloat16",
+   "impl": "triton int8",
+   "ms": 1.8461,
+   "rate": 96.42,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "act_quant",
+   "shape": "8192x7168 bfloat16",
+   "impl": "triton int8 K-major (v2)",
+   "ms": 2.661,
+   "rate": 66.89,
+   "unit": "GB/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=32",
+   "impl": "torch fp32 (unquantized)",
+   "ms": 0.9208,
+   "rate": 0.77,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=32",
+   "impl": "torch fp16 (unquantized)",
+   "ms": 2.0902,
+   "rate": 0.34,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=32",
+   "impl": "torch dequant + fp32",
+   "ms": 0.9471,
+   "rate": 0.74,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=32",
+   "impl": "torch _int_mm (no scales)",
+   "ms": 0.2694,
+   "rate": 2.62,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=32",
+   "impl": "triton int8 v0",
+   "ms": 0.7006,
+   "rate": 1.01,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=32",
+   "impl": "triton int8 v1",
+   "ms": 0.6647,
+   "rate": 1.06,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=32",
+   "impl": "triton int8 v2 (dp4a)",
+   "ms": 0.5818,
+   "rate": 1.21,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=128",
+   "impl": "torch fp32 (unquantized)",
+   "ms": 1.2775,
+   "rate": 2.21,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=128",
+   "impl": "torch fp16 (unquantized)",
+   "ms": 8.361,
+   "rate": 0.34,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=128",
+   "impl": "torch dequant + fp32",
+   "ms": 1.3642,
+   "rate": 2.07,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=128",
+   "impl": "torch _int_mm (no scales)",
+   "ms": 0.2706,
+   "rate": 10.42,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=128",
+   "impl": "triton int8 v0",
+   "ms": 2.6001,
+   "rate": 1.08,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=128",
+   "impl": "triton int8 v1",
+   "ms": 2.2643,
+   "rate": 1.24,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=128",
+   "impl": "triton int8 v2 (dp4a)",
+   "ms": 0.6329,
+   "rate": 4.45,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=1024",
+   "impl": "torch fp32 (unquantized)",
+   "ms": 8.0682,
+   "rate": 2.79,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=1024",
+   "impl": "torch fp16 (unquantized)",
+   "ms": 66.5879,
+   "rate": 0.34,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=1024",
+   "impl": "torch dequant + fp32",
+   "ms": 8.6805,
+   "rate": 2.6,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=1024",
+   "impl": "torch _int_mm (no scales)",
+   "ms": 1.8627,
+   "rate": 12.11,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=1024",
+   "impl": "triton int8 v0",
+   "ms": 17.9426,
+   "rate": 1.26,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=1024",
+   "impl": "triton int8 v1",
+   "ms": 17.6018,
+   "rate": 1.28,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=1024",
+   "impl": "triton int8 v2 (dp4a)",
+   "ms": 4.6715,
+   "rate": 4.83,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=4096",
+   "impl": "torch fp32 (unquantized)",
+   "ms": 31.804,
+   "rate": 2.84,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=4096",
+   "impl": "torch fp16 (unquantized)",
+   "ms": 266.3829,
+   "rate": 0.34,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=4096",
+   "impl": "torch dequant + fp32",
+   "ms": 34.2695,
+   "rate": 2.63,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=4096",
+   "impl": "torch _int_mm (no scales)",
+   "ms": 7.6313,
+   "rate": 11.82,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=4096",
+   "impl": "triton int8 v0",
+   "ms": 70.3896,
+   "rate": 1.28,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=4096",
+   "impl": "triton int8 v1",
+   "ms": 70.3117,
+   "rate": 1.28,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "q_a 7168->1536 M=4096",
+   "impl": "triton int8 v2 (dp4a)",
+   "ms": 18.5427,
+   "rate": 4.86,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=32",
+   "impl": "torch fp32 (unquantized)",
+   "ms": 1.4141,
+   "rate": 0.66,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=32",
+   "impl": "torch fp16 (unquantized)",
+   "ms": 2.7885,
+   "rate": 0.34,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=32",
+   "impl": "torch dequant + fp32",
+   "ms": 1.4054,
+   "rate": 0.67,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=32",
+   "impl": "torch _int_mm (no scales)",
+   "ms": 0.5287,
+   "rate": 1.78,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=32",
+   "impl": "triton int8 v0",
+   "ms": 1.3125,
+   "rate": 0.72,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=32",
+   "impl": "triton int8 v1",
+   "ms": 0.988,
+   "rate": 0.95,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=32",
+   "impl": "triton int8 v2 (dp4a)",
+   "ms": 0.5921,
+   "rate": 1.59,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=128",
+   "impl": "torch fp32 (unquantized)",
+   "ms": 1.6179,
+   "rate": 2.32,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=128",
+   "impl": "torch fp16 (unquantized)",
+   "ms": 11.1048,
+   "rate": 0.34,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=128",
+   "impl": "torch dequant + fp32",
+   "ms": 1.6895,
+   "rate": 2.22,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=128",
+   "impl": "torch _int_mm (no scales)",
+   "ms": 0.5314,
+   "rate": 7.07,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=128",
+   "impl": "triton int8 v0",
+   "ms": 3.2363,
+   "rate": 1.16,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=128",
+   "impl": "triton int8 v1",
+   "ms": 3.2211,
+   "rate": 1.17,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=128",
+   "impl": "triton int8 v2 (dp4a)",
+   "ms": 1.1238,
+   "rate": 3.34,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=1024",
+   "impl": "torch fp32 (unquantized)",
+   "ms": 23.2304,
+   "rate": 1.29,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=1024",
+   "impl": "torch fp16 (unquantized)",
+   "ms": 90.352,
+   "rate": 0.33,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=1024",
+   "impl": "torch dequant + fp32",
+   "ms": 26.432,
+   "rate": 1.14,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=1024",
+   "impl": "torch _int_mm (no scales)",
+   "ms": 2.6544,
+   "rate": 11.33,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=1024",
+   "impl": "triton int8 v0",
+   "ms": 23.7005,
+   "rate": 1.27,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=1024",
+   "impl": "triton int8 v1",
+   "ms": 23.6659,
+   "rate": 1.27,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=1024",
+   "impl": "triton int8 v2 (dp4a)",
+   "ms": 6.5397,
+   "rate": 4.6,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=4096",
+   "impl": "torch fp32 (unquantized)",
+   "ms": 42.6224,
+   "rate": 2.82,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=4096",
+   "impl": "torch fp16 (unquantized)",
+   "ms": 351.9963,
+   "rate": 0.34,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=4096",
+   "impl": "torch dequant + fp32",
+   "ms": 45.0884,
+   "rate": 2.67,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=4096",
+   "impl": "torch _int_mm (no scales)",
+   "ms": 10.1974,
+   "rate": 11.79,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=4096",
+   "impl": "triton int8 v0",
+   "ms": 94.0066,
+   "rate": 1.28,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=4096",
+   "impl": "triton int8 v1",
+   "ms": 93.6286,
+   "rate": 1.28,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert up 7168->2048 M=4096",
+   "impl": "triton int8 v2 (dp4a)",
+   "ms": 24.5898,
+   "rate": 4.89,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=32",
+   "impl": "torch fp32 (unquantized)",
+   "ms": 1.0475,
+   "rate": 0.9,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=32",
+   "impl": "torch fp16 (unquantized)",
+   "ms": 2.7249,
+   "rate": 0.34,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=32",
+   "impl": "torch dequant + fp32",
+   "ms": 1.0593,
+   "rate": 0.89,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=32",
+   "impl": "torch _int_mm (no scales)",
+   "ms": 0.3131,
+   "rate": 3.0,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=32",
+   "impl": "triton int8 v0",
+   "ms": 0.7503,
+   "rate": 1.25,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=32",
+   "impl": "triton int8 v1",
+   "ms": 0.746,
+   "rate": 1.26,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=32",
+   "impl": "triton int8 v2 (dp4a)",
+   "ms": 0.224,
+   "rate": 4.19,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=128",
+   "impl": "torch fp32 (unquantized)",
+   "ms": 2.1713,
+   "rate": 1.73,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=128",
+   "impl": "torch fp16 (unquantized)",
+   "ms": 10.8934,
+   "rate": 0.34,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=128",
+   "impl": "torch dequant + fp32",
+   "ms": 2.2016,
+   "rate": 1.71,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=128",
+   "impl": "torch _int_mm (no scales)",
+   "ms": 0.3181,
+   "rate": 11.81,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=128",
+   "impl": "triton int8 v0",
+   "ms": 2.9427,
+   "rate": 1.28,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=128",
+   "impl": "triton int8 v1",
+   "ms": 2.9339,
+   "rate": 1.28,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=128",
+   "impl": "triton int8 v2 (dp4a)",
+   "ms": 0.784,
+   "rate": 4.79,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=1024",
+   "impl": "torch fp32 (unquantized)",
+   "ms": 17.5715,
+   "rate": 1.71,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=1024",
+   "impl": "torch fp16 (unquantized)",
+   "ms": 86.9604,
+   "rate": 0.35,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=1024",
+   "impl": "torch dequant + fp32",
+   "ms": 17.6586,
+   "rate": 1.7,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=1024",
+   "impl": "torch _int_mm (no scales)",
+   "ms": 2.5089,
+   "rate": 11.98,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=1024",
+   "impl": "triton int8 v0",
+   "ms": 23.4086,
+   "rate": 1.28,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=1024",
+   "impl": "triton int8 v1",
+   "ms": 23.3865,
+   "rate": 1.29,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=1024",
+   "impl": "triton int8 v2 (dp4a)",
+   "ms": 6.3613,
+   "rate": 4.73,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=4096",
+   "impl": "torch fp32 (unquantized)",
+   "ms": 76.1565,
+   "rate": 1.58,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=4096",
+   "impl": "torch fp16 (unquantized)",
+   "ms": 347.7975,
+   "rate": 0.35,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=4096",
+   "impl": "torch dequant + fp32",
+   "ms": 71.5841,
+   "rate": 1.68,
+   "unit": "TFLOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=4096",
+   "impl": "torch _int_mm (no scales)",
+   "ms": 10.4104,
+   "rate": 11.55,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=4096",
+   "impl": "triton int8 v0",
+   "ms": 93.5732,
+   "rate": 1.29,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=4096",
+   "impl": "triton int8 v1",
+   "ms": 93.5222,
+   "rate": 1.29,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "gemm",
+   "shape": "expert down 2048->7168 M=4096",
+   "impl": "triton int8 v2 (dp4a)",
+   "ms": 24.8394,
+   "rate": 4.84,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=4 M=1 N=4096",
+   "impl": "torch fp32 (chunked)",
+   "ms": 0.3866,
+   "rate": 0.69,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=4 M=1 N=4096",
+   "impl": "torch int8 _int_mm",
+   "ms": 0.5659,
+   "rate": 0.47,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=4 M=1 N=4096",
+   "impl": "triton v0 (DeepSeek tile)",
+   "ms": 0.2373,
+   "rate": 1.13,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=4 M=1 N=4096",
+   "impl": "triton v1 tuned q1 n32 w8",
+   "ms": 0.2182,
+   "rate": 1.23,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=4 M=1 N=4096",
+   "impl": "triton v2 dp4a q1 n128 w2 u8",
+   "ms": 0.0556,
+   "rate": 4.83,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=4 M=1 N=32768",
+   "impl": "torch fp32 (chunked)",
+   "ms": 2.7553,
+   "rate": 0.78,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=4 M=1 N=32768",
+   "impl": "torch int8 _int_mm",
+   "ms": 8.208,
+   "rate": 0.26,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=4 M=1 N=32768",
+   "impl": "triton v0 (DeepSeek tile)",
+   "ms": 1.6985,
+   "rate": 1.26,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=4 M=1 N=32768",
+   "impl": "triton v1 tuned q1 n32 w4",
+   "ms": 1.6805,
+   "rate": 1.28,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=4 M=1 N=32768",
+   "impl": "triton v2 dp4a q1 n128 w2 u8",
+   "ms": 0.3419,
+   "rate": 6.28,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=1 M=1 N=131072",
+   "impl": "torch fp32 (chunked)",
+   "ms": 2.6575,
+   "rate": 0.81,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=1 M=1 N=131072",
+   "impl": "torch int8 _int_mm",
+   "ms": 8.119,
+   "rate": 0.26,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=1 M=1 N=131072",
+   "impl": "triton v0 (DeepSeek tile)",
+   "ms": 1.6984,
+   "rate": 1.26,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=1 M=1 N=131072",
+   "impl": "triton v1 tuned q1 n32 w4",
+   "ms": 1.6801,
+   "rate": 1.28,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "decode B=1 M=1 N=131072",
+   "impl": "triton v2 dp4a q1 n128 w2 u8",
+   "ms": 0.3417,
+   "rate": 6.28,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "prefill B=1 M=1024 N=1024",
+   "impl": "torch fp32 (chunked)",
+   "ms": 15.5811,
+   "rate": 1.1,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "prefill B=1 M=1024 N=1024",
+   "impl": "torch int8 _int_mm",
+   "ms": 13.8703,
+   "rate": 1.24,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "prefill B=1 M=1024 N=1024",
+   "impl": "triton v0 (DeepSeek tile)",
+   "ms": 13.3831,
+   "rate": 1.28,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "prefill B=1 M=1024 N=1024",
+   "impl": "triton v1 tuned q1 n32 w8",
+   "ms": 13.3707,
+   "rate": 1.28,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "prefill B=1 M=1024 N=1024",
+   "impl": "triton v1 + causal skip",
+   "ms": 6.9017,
+   "rate": 2.49,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "prefill B=1 M=1024 N=1024",
+   "impl": "triton v2 dp4a q1 n128 w2 u8",
+   "ms": 2.5513,
+   "rate": 6.73,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "prefill B=1 M=1024 N=1024",
+   "impl": "triton v2 dp4a + causal skip",
+   "ms": 1.561,
+   "rate": 11.01,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "prefill B=1 M=4096 N=4096",
+   "impl": "torch fp32 (chunked)",
+   "ms": 304.1537,
+   "rate": 0.9,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "prefill B=1 M=4096 N=4096",
+   "impl": "torch int8 _int_mm",
+   "ms": 220.1642,
+   "rate": 1.25,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "prefill B=1 M=4096 N=4096",
+   "impl": "triton v0 (DeepSeek tile)",
+   "ms": 213.676,
+   "rate": 1.29,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "prefill B=1 M=4096 N=4096",
+   "impl": "triton v1 tuned q1 n128 w4",
+   "ms": 213.6909,
+   "rate": 1.29,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "prefill B=1 M=4096 N=4096",
+   "impl": "triton v1 + causal skip",
+   "ms": 110.2003,
+   "rate": 2.49,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "prefill B=1 M=4096 N=4096",
+   "impl": "triton v2 dp4a q1 n128 w2 u8",
+   "ms": 39.9194,
+   "rate": 6.89,
+   "unit": "TOP/s"
+  },
+  {
+   "kernel": "index",
+   "shape": "prefill B=1 M=4096 N=4096",
+   "impl": "triton v2 dp4a + causal skip",
+   "ms": 21.1507,
+   "rate": 13.0,
+   "unit": "TOP/s"
+  }
+ ]
+}
