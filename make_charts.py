@@ -25,11 +25,11 @@ def get(kernel, shape, impl_prefix):
     raise KeyError((kernel, shape, impl_prefix))
 
 
-def frame(title, subtitle, size=(12, 6.75)):
+def frame(title, subtitle, size=(12, 6.75), foot=FOOT):
     fig = plt.figure(figsize=size, dpi=150)
     fig.text(0.04, 0.94, title, fontsize=21, weight="bold", color=INK, va="top")
     fig.text(0.04, 0.875, subtitle, fontsize=13.5, color=INK2, va="top")
-    fig.text(0.04, 0.025, FOOT, fontsize=10, color=MUTED)
+    fig.text(0.04, 0.025, foot, fontsize=10, color=MUTED)
     return fig
 
 
@@ -102,4 +102,35 @@ ax.set_xlabel("Tokens per batch (M)"); ax.set_ylabel("Tera-operations per second
 ax.yaxis.grid(True, color=GRID, linewidth=1); ax.set_axisbelow(True); ax.set_ylim(0, 13)
 ax.legend(loc="upper left", frameon=False, fontsize=11.5)
 fig.savefig(os.path.join(OUT, "4_gemm_scaling.png")); plt.close(fig)
+# 5. Indexer accuracy: which keys each number format loses, top-2048 ---------------------------------------
+iq = os.path.join(HERE, "results", "indexer_quant.json")
+if os.path.exists(iq):
+    R = json.load(open(iq))["rows"]; K = 2048
+    trivial = {l for l in {r["layer"] for r in R}
+               if all(r["recall"] == 1.0 for r in R if r["layer"] == l and r["k"] == K and r["fmt"] != "window")}
+    def miss(fmt, rot):
+        s = [r["recall"] for r in R if r["k"] == K and r["fmt"] == fmt and r["rot"] == rot and r["layer"] not in trivial]
+        return 100 * (1 - sum(s) / len(s))
+    fmts = [("BF16", "bf16"), ("FP8 e4m3", "fp8"), ("FP8, power-of-2 scales", "fp8_ue8m0"), ("INT8", "int8"),
+            ("INT6", "int6")]
+    fig = frame("INT8 + Hadamard loses 5x fewer indexer keys than FP8 + Hadamard",
+                f"Share of the full-precision top-2048 keys each format drops, in the {24 - len(trivial)} of 24 "
+                "layers where the choice is not trivial",
+                foot="Proxy, not DeepSeek's trained indexer: real Qwen2.5-0.5B attention q/k (64 dims), uniform head "
+                     "weights, 4 texts x 8,192 tokens, 256 queries each")
+    ax = fig.add_axes([0.25, 0.16, 0.69, 0.64])
+    ys = list(range(len(fmts)))[::-1]; hgt = 0.36
+    for off, rot, c, lab in ((hgt / 2, "none", BASE, "No rotation"), (-hgt / 2, "hadamard", S1, "Hadamard rotation")):
+        vals = [miss(f, rot) for _, f in fmts]
+        ax.barh([y + off for y in ys], vals, height=hgt, color=c, edgecolor=SURFACE, linewidth=2, label=lab)
+        for y, v in zip(ys, vals):
+            ax.text(v + 0.06, y + off, f"{v:.2f}%", va="center", fontsize=11.5, color=INK)
+    ax.set_yticks(ys); ax.set_yticklabels([f[0] for f in fmts], fontsize=13, color=INK); ax.tick_params(axis="y", length=0)
+    ax.spines["left"].set_visible(False); ax.xaxis.grid(True, color=GRID, linewidth=1); ax.set_axisbelow(True)
+    ax.set_xlim(0, max(miss(f, r) for _, f in fmts for r in ("none", "hadamard")) * 1.25)
+    ax.set_xlabel("Top-2048 keys lost vs full precision, % (lower is better)")
+    ax.legend(loc="upper right", frameon=False, fontsize=12)
+    ax.annotate("DeepSeek-V3.2 ships this one", xy=(miss("fp8", "hadamard") + 0.55, ys[1] - hgt / 2), fontsize=11.5,
+                color=INK2, va="center")
+    fig.savefig(os.path.join(OUT, "5_indexer_precision.png")); plt.close(fig)
 print("wrote", sorted(os.listdir(OUT)))
