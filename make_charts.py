@@ -176,4 +176,23 @@ if os.path.exists(mech):
     ax.yaxis.grid(True, color=GRID, linewidth=1); ax.set_axisbelow(True)
     ax.legend(loc="upper left", frameon=False, fontsize=11.5)
     fig.savefig(os.path.join(OUT, "7_indexer_mechanism.png")); plt.close(fig)
+
+ds0 = os.path.join(HERE, "results", "ds_layer0.json")
+if os.path.exists(ds0):
+    # 8. Real DeepSeek-V3.2-Exp indexer, layer 0 (experiments/ds_layer0.py)
+    R0 = [r for r in json.load(open(ds0))["rows"] if r["k"] == 2048 and r["center"] == "none"]
+    l0 = lambda fmt, rot: 100 * (1 - sum(r["recall"] for r in R0 if (r["fmt"], r["rot"]) == (fmt, rot)) / 4)
+    cfgs = [("FP8 + Hadamard, power-of-2 scales\n(DeepSeek-V3.2's setup)", "fp8_ue8m0", "hadamard", BASE),
+            ("FP8 + Hadamard", "fp8", "hadamard", BASE), ("INT8", "int8", "none", BASE),
+            ("INT8 + Hadamard", "int8", "hadamard", S1), ("BF16, 16-bit (reference)", "bf16", "none", BASE)]
+    vals = [l0(f, r) for _, f, r, _ in cfgs]
+    fig = frame("DeepSeek-V3.2's real indexer: INT8 loses 4x fewer tokens than FP8",
+                "Layer 0 of DeepSeek-V3.2-Exp, computed from its released weights: share of the full-precision "
+                "top-2048 tokens lost",
+                foot="Layer 0 only. fp32 reference per DeepSeek's inference code, real head weights. "
+                     "4 texts x 8,192 tokens, 256 queries each; INT8 wins in all 4")
+    ax = fig.add_axes([0.3, 0.16, 0.64, 0.64])
+    hbars(ax, [c[0] for c in cfgs], vals, [c[3] for c in cfgs], lambda v: f"{v:.2f}%",
+          "Top-2048 tokens lost vs full precision, % (lower is better)")
+    fig.savefig(os.path.join(OUT, "8_deepseek_layer0.png")); plt.close(fig)
 print("wrote", sorted(os.listdir(OUT)))

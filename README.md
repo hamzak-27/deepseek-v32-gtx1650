@@ -93,6 +93,31 @@ by at most 0.5 points (1.5B, FP8: 85.9% vs 86.4% full precision; a last-2,048-to
 **Limits:** a proxy, not DeepSeek's trained indexer (its learned head weights may behave differently, and it may be
 trained with FP8 in the loop); two small models from one family; 4 texts; no end-to-end quality measurement.
 
+### Check on DeepSeek-V3.2-Exp's real weights (`ds_knorm.py`, `ds_layer0.py`, chart 8)
+
+`ds_fetch.py` reads single tensors from the released checkpoint with HTTP range requests (safetensors headers give
+each tensor's byte range), so about 100 MB is downloaded instead of the ~690 GB checkpoint.
+
+**The key offset is a Qwen effect.** V3.2's indexer keys are `LayerNorm(wk x)`, so the LayerNorm bias would be a
+shared offset. In all 61 layers plus the MTP layer it is ~1% of the key spread (|beta| / |gamma| on the no-RoPE dims:
+median 0.009, max 0.026; gamma is ~1.0 everywhere).
+
+**Real layer-0 indexer.** Layer 0's input is `RMSNorm(embedding)`, so its indexer (queries, keys, real per-head
+weights, YaRN RoPE) is computed exactly in fp32 from the weights, on the same 4 texts, windows and queries:
+
+| Top-2048 tokens lost, DeepSeek-V3.2-Exp layer 0 | all texts | per text |
+|---|---|---|
+| FP8 + Hadamard, ue8m0 scales (V3.2's setup) | **0.64%** | 0.58-0.69 |
+| FP8 + Hadamard | 0.61% | 0.55-0.66 |
+| INT8 | 0.20% | 0.18-0.22 |
+| INT8 + Hadamard | **0.16%** | 0.14-0.17 |
+| INT8 + Hadamard, keys centered | 0.14% | 0.13-0.14 |
+| BF16 | 0.04% | |
+
+INT8 + Hadamard loses 4x fewer than V3.2's own format, in every text. The key offset here is 0.7 (Qwen2.5-1.5B layer
+0: 40), so centering gains only ~15%. Limits: layer 0 only; the fp32 reference follows DeepSeek's inference code but is
+not checked against a run of their stack; no attention-mass metric (it would need layer 0's main attention).
+
 ## Known limits
 
 - The K-major `act_quant` (v2) is 25-55% slower than the row-major one because its stores are scattered.
@@ -117,6 +142,11 @@ cd experiments
 python indexer_quant.py Qwen2.5-0.5B-Instruct
 python indexer_quant.py Qwen2.5-1.5B-Instruct
 python indexer_mechanism.py 0.5b 1.5b
+# DeepSeek-V3.2-Exp checks: weight index and tokenizer first (~17 MB), then tensors are fetched on demand
+mkdir -p ds_weights && for f in model.safetensors.index.json:index.json tokenizer.json:tokenizer.json; do
+  curl -sL -o ds_weights/${f#*:} https://huggingface.co/deepseek-ai/DeepSeek-V3.2-Exp/resolve/main/${f%%:*}; done
+python ds_knorm.py
+python ds_layer0.py
 cd .. && python make_charts.py
 ```
 
