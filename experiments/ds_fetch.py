@@ -43,6 +43,18 @@ def dequant(w, s, bs=128):
     return (w * s.float()[:, None, :, None]).reshape(out, inn)
 
 
+def load8(name, parts=16):
+    """A 2-D fp8 weight kept as stored (fp8 + its 128x128 block scales), for layers too large to cache in fp32.
+    Fetched as `parts` row ranges in parallel; cached on disk as (weight, scale)."""
+    p = os.path.join(CACHE, name + ".fp8.pt")
+    if os.path.exists(p): return torch.load(p)
+    shard = WMAP[name]; e = header(shard)[1][name]; n = e["shape"][0]; step = -(-n // parts)
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(parts) as ex:
+        w = torch.cat(list(ex.map(lambda a: raw(name, rows=(a, min(a + step, n))), range(0, n, step))))
+    t = (w, raw(name + "_scale_inv").float()); torch.save(t, p); return t
+
+
 def load(name):
     """fp32 tensor, dequantized if it is fp8; cached on disk."""
     p = os.path.join(CACHE, name + ".pt")

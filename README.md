@@ -103,7 +103,7 @@ shared offset. In all 61 layers plus the MTP layer it is ~1% of the key spread (
 median 0.009, max 0.026; gamma is ~1.0 everywhere).
 
 **Real layer-0 indexer.** Layer 0's input is `RMSNorm(embedding)`, so its indexer (queries, keys, real per-head
-weights, YaRN RoPE) is computed exactly in fp32 from the weights, on the same 4 texts, windows and queries:
+weights, YaRN RoPE) is computed exactly in fp32 from the weights, on the same 4 windows (2 texts x 2) and queries:
 
 | Top-2048 tokens lost, DeepSeek-V3.2-Exp layer 0 | all texts | per text |
 |---|---|---|
@@ -117,6 +117,39 @@ weights, YaRN RoPE) is computed exactly in fp32 from the weights, on the same 4 
 INT8 + Hadamard loses 4x fewer than V3.2's own format, in every text. The key offset here is 0.7 (Qwen2.5-1.5B layer
 0: 40), so centering gains only ~15%. Limits: layer 0 only; the fp32 reference follows DeepSeek's inference code but is
 not checked against a run of their stack; no attention-mass metric (it would need layer 0's main attention).
+
+### Layers 0-3, with the main attention (`ds_layers.py`, chart 9)
+
+Layers 0-2 of V3.2 are dense, so the residual stream into layers 1-3 is computed exactly from ~1.8 GB of fp8 weights
+(MLA attention over the fp32 indexer's top-2048, fp8 KV-cache simulation, dense SwiGLU MLP; RoPE and dequantization
+checked against DeepSeek's code). Each window now starts with BOS. Mean over the same 4 windows, 256 queries each:
+
+| | Layer 0 | Layer 1 | Layer 2 | Layer 3 |
+|---|---|---|---|---|
+| **Top-2048 tokens lost** | | | | |
+| FP8 + Hadamard, ue8m0 (V3.2's setup) | 0.64% | 1.79% | 1.63% | 1.10% |
+| INT8 + Hadamard | 0.16% | 0.43% | 0.39% | 0.27% |
+| BF16 | 0.04% | 0.12% | 0.11% | 0.08% |
+| **Attention output error** (real sparse attention vs fp32-indexer selection) | | | | |
+| FP8 + Hadamard, ue8m0 | 0.21% | 0.40% | 1.03% | 0.59% |
+| INT8 + Hadamard | 0.11% | 0.18% | 0.44% | 0.27% |
+| BF16 | 0.05% | 0.08% | 0.21% | 0.13% |
+| **Dense attention weight held by the 2048 selected tokens** | | | | |
+| fp32 indexer | 97.2% | 94.4% | 71.4% | 84.0% |
+| oracle (top-2048 by attention, per head) | 99.8% | 98.1% | 85.1% | 91.4% |
+| last 2048 tokens | 41.7% | 54.2% | 65.0% | 55.4% |
+
+- INT8 + Hadamard loses 3.9-4.3x fewer tokens than V3.2's format in all 16 layer-windows; the gap from layer 0 holds
+  deeper in the model, where both lose about 2.5x more than at layer 0.
+- The output error is about 2x lower with INT8 (lower in 15 of 16 layer-windows). The swapped tokens are near the
+  cut-off: every format keeps the attention weight within 0.02 points of fp32.
+- Context: all of this is small next to the indexer's own approximation. The fp32 indexer misses 3-14 points of
+  attention weight that the oracle keeps, and using the last 2048 tokens instead costs 3.5-18% output error.
+  So V3.2's FP8 choice costs little in absolute terms; INT8 is a cheaper format (on GPUs with fast INT8) that costs less.
+- Sanity check of the forward pass: at every layer the fp32 indexer's selection holds far more attention weight than the
+  last 2048 tokens, as an indexer trained to match the attention should; a wrong residual stream would collapse this.
+- Limits: 4 of 61 layers (layer 4 on needs the 256 experts); fp32 activations in the linear layers (V3.2 serves them in
+  fp8); one sequence length (8,192); output error before `o_proj`.
 
 ## Known limits
 
@@ -147,6 +180,7 @@ mkdir -p ds_weights && for f in model.safetensors.index.json:index.json tokenize
   curl -sL -o ds_weights/${f#*:} https://huggingface.co/deepseek-ai/DeepSeek-V3.2-Exp/resolve/main/${f%%:*}; done
 python ds_knorm.py
 python ds_layer0.py
+python ds_layers.py      # downloads ~1.8 GB of fp8 weights once; ~7 min on a GTX 1650
 cd .. && python make_charts.py
 ```
 

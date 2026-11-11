@@ -190,9 +190,25 @@ if os.path.exists(ds0):
                 "Layer 0 of DeepSeek-V3.2-Exp, computed from its released weights: share of the full-precision "
                 "top-2048 tokens lost",
                 foot="Layer 0 only. fp32 reference per DeepSeek's inference code, real head weights. "
-                     "4 texts x 8,192 tokens, 256 queries each; INT8 wins in all 4")
+                     "2 texts x 2 windows x 8,192 tokens, 256 queries each; INT8 wins in all 4")
     ax = fig.add_axes([0.3, 0.16, 0.64, 0.64])
     hbars(ax, [c[0] for c in cfgs], vals, [c[3] for c in cfgs], lambda v: f"{v:.2f}%",
           "Top-2048 tokens lost vs full precision, % (lower is better)")
     fig.savefig(os.path.join(OUT, "8_deepseek_layer0.png")); plt.close(fig)
+dsl = os.path.join(HERE, "results", "ds_layers.json")
+if os.path.exists(dsl):
+    # 9. Real DeepSeek-V3.2-Exp layers 0-3 with the main attention (experiments/ds_layers.py)
+    RL = json.load(open(dsl))["rows"]
+    m = lambda l, key, f, r: 100 * sum(x[key] for x in RL if x["layer"] == l and (x["fmt"], x["rot"], x["center"]) == (f, r, "none")) / \
+        len([x for x in RL if x["layer"] == l and (x["fmt"], x["rot"], x["center"]) == (f, r, "none")])
+    series = [("FP8 + Hadamard, power-of-2 scales (DeepSeek-V3.2's setup)", BASE, [m(l, "err", "fp8_ue8m0", "hadamard") for l in range(4)]),
+              ("INT8 + Hadamard", S1, [m(l, "err", "int8", "hadamard") for l in range(4)])]
+    fig = frame("INT8 halves the indexer's attention error in DeepSeek-V3.2",
+                "Change in the real sparse-attention output caused by quantizing the indexer, layers 0-3 of DeepSeek-V3.2-Exp",
+                foot="fp32 forward through dense layers 0-2 from the released weights; 2 texts x 2 windows x 8,192 tokens, "
+                     "256 queries each. INT8 lower in 15 of 16 layer-windows")
+    ax = fig.add_axes([0.16, 0.16, 0.78, 0.62])
+    grouped(ax, [f"Layer {l}" for l in range(4)], series, 1.25, "Attention output error vs full-precision indexer, % (lower is better)",
+            legend="upper right")
+    fig.savefig(os.path.join(OUT, "9_deepseek_layers.png")); plt.close(fig)
 print("wrote", sorted(os.listdir(OUT)))

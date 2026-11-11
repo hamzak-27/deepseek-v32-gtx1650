@@ -1,0 +1,98 @@
+layer 0: weights ready 1s, GPU 0.62 GB
+  code0: 24s  mass fp32 0.975 window 0.420 oracle 0.998  k_offset 0.71
+  code1: 24s  mass fp32 0.972 window 0.408 oracle 0.998  k_offset 0.72
+  prose0: 24s  mass fp32 0.967 window 0.419 oracle 0.998  k_offset 0.70
+  prose1: 24s  mass fp32 0.974 window 0.422 oracle 0.999  k_offset 0.69
+layer 1: weights ready 1s, GPU 0.63 GB
+  code0: 24s  mass fp32 0.944 window 0.604 oracle 0.982  k_offset 0.69
+  code1: 24s  mass fp32 0.944 window 0.519 oracle 0.983  k_offset 0.69
+  prose0: 24s  mass fp32 0.943 window 0.520 oracle 0.979  k_offset 0.70
+  prose1: 24s  mass fp32 0.945 window 0.524 oracle 0.980  k_offset 0.70
+layer 2: weights ready 0s, GPU 0.63 GB
+  code0: 24s  mass fp32 0.731 window 0.664 oracle 0.872  k_offset 0.75
+  code1: 24s  mass fp32 0.739 window 0.665 oracle 0.876  k_offset 0.75
+  prose0: 24s  mass fp32 0.692 window 0.634 oracle 0.829  k_offset 0.85
+  prose1: 24s  mass fp32 0.694 window 0.637 oracle 0.828  k_offset 0.85
+layer 3: weights ready 0s, GPU 0.15 GB
+  code0: 3s  mass fp32 0.852 window 0.556 oracle 0.923  k_offset 0.79
+  code1: 3s  mass fp32 0.845 window 0.551 oracle 0.921  k_offset 0.80
+  prose0: 3s  mass fp32 0.833 window 0.555 oracle 0.907  k_offset 0.83
+  prose1: 3s  mass fp32 0.831 window 0.554 oracle 0.905  k_offset 0.83
+
+== DeepSeek-V3.2-Exp, top-2048 of 8192, mean over 4 windows ==
+
+layer 0
+format     rotation  center  lost %  mass % out err %
+fp32       none      none     0.000  97.167     0.000
+oracle     none      none       nan  99.825       nan
+window     none      none    62.061  41.730     3.497
+bf16       none      none     0.042  97.166     0.046
+bf16       hadamard  none     0.046  97.166     0.016
+fp8        none      none     0.582  97.163     0.242
+fp8        hadamard  none     0.610  97.165     0.144
+fp8_ue8m0  none      none     0.594  97.161     0.166
+fp8_ue8m0  hadamard  none     0.635  97.161     0.214
+int8       none      none     0.203  97.165     0.129
+int8       hadamard  none     0.161  97.166     0.107
+int6       none      none     0.776  97.150     0.239
+int6       hadamard  none     0.632  97.165     0.203
+int4       none      none     3.210  97.124     0.715
+int4       hadamard  none     2.703  97.124     0.650
+int8       hadamard  k        0.135  97.165     0.137
+
+layer 1
+format     rotation  center  lost %  mass % out err %
+fp32       none      none     0.000  94.406     0.000
+oracle     none      none       nan  98.085       nan
+window     none      none    48.353  54.183    11.346
+bf16       none      none     0.116  94.406     0.077
+bf16       hadamard  none     0.118  94.406     0.080
+fp8        none      none     1.707  94.402     0.433
+fp8        hadamard  none     1.726  94.403     0.398
+fp8_ue8m0  none      none     1.688  94.403     0.418
+fp8_ue8m0  hadamard  none     1.785  94.402     0.402
+int8       none      none     0.623  94.406     0.225
+int8       hadamard  none     0.430  94.406     0.180
+int6       none      none     2.625  94.401     0.532
+int6       hadamard  none     1.737  94.402     0.403
+int4       none      none    10.223  94.268     1.474
+int4       hadamard  none     7.497  94.328     0.955
+int8       hadamard  k        0.378  94.406     0.176
+
+layer 2
+format     rotation  center  lost %  mass % out err %
+fp32       none      none     0.000  71.383     0.000
+oracle     none      none       nan  85.109       nan
+window     none      none    34.247  65.012    18.280
+bf16       none      none     0.114  71.384     0.209
+bf16       hadamard  none     0.110  71.384     0.196
+fp8        none      none     1.597  71.371     1.044
+fp8        hadamard  none     1.550  71.371     0.991
+fp8_ue8m0  none      none     1.714  71.369     1.075
+fp8_ue8m0  hadamard  none     1.628  71.370     1.029
+int8       none      none     0.438  71.383     0.475
+int8       hadamard  none     0.387  71.383     0.444
+int6       none      none     1.789  71.368     1.091
+int6       hadamard  none     1.561  71.372     1.005
+int4       none      none     7.787  71.091     3.213
+int4       hadamard  none     6.885  71.137     2.771
+int8       hadamard  k        0.354  71.383     0.427
+
+layer 3
+format     rotation  center  lost %  mass % out err %
+fp32       none      none     0.000  84.022     0.000
+oracle     none      none       nan  91.413       nan
+window     none      none    45.845  55.401    16.621
+bf16       none      none     0.075  84.022     0.126
+bf16       hadamard  none     0.073  84.022     0.117
+fp8        none      none     1.057  84.017     0.598
+fp8        hadamard  none     1.084  84.015     0.583
+fp8_ue8m0  none      none     1.068  84.015     0.599
+fp8_ue8m0  hadamard  none     1.099  84.016     0.595
+int8       none      none     0.364  84.021     0.314
+int8       hadamard  none     0.268  84.021     0.268
+int6       none      none     1.477  84.011     0.683
+int6       hadamard  none     1.075  84.015     0.584
+int4       none      none     6.583  83.807     1.792
+int4       hadamard  none     4.757  83.901     1.336
+int8       hadamard  k        0.240  84.022     0.259
