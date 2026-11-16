@@ -1,0 +1,127 @@
+{
+ "device": "NVIDIA GeForce GTX 1650",
+ "torch": "2.6.0+cu124",
+ "triton": "3.2.0",
+ "date": "2026-11-16",
+ "rows": [
+  {
+   "case": "decode B=4 M=1 N=32768",
+   "path": "fp32",
+   "ms": 2.1411
+  },
+  {
+   "case": "decode B=4 M=1 N=32768",
+   "path": "int8 kernel",
+   "ms": 0.3417,
+   "cfg": [
+    1,
+    128,
+    2,
+    8
+   ]
+  },
+  {
+   "case": "decode B=4 M=1 N=32768",
+   "path": "int8 + rotate",
+   "ms": 0.3854
+  },
+  {
+   "case": "decode B=4 M=1 N=32768",
+   "path": "  rotate+quant only",
+   "ms": 0.0355
+  },
+  {
+   "case": "decode B=4 M=1 N=32768",
+   "path": "summary",
+   "topk_overlap": 0.9988,
+   "speedup": 5.55,
+   "rotation_share": 0.092
+  },
+  {
+   "case": "decode B=1 M=1 N=131072",
+   "path": "fp32",
+   "ms": 1.9352
+  },
+  {
+   "case": "decode B=1 M=1 N=131072",
+   "path": "int8 kernel",
+   "ms": 0.3415,
+   "cfg": [
+    1,
+    128,
+    2,
+    8
+   ]
+  },
+  {
+   "case": "decode B=1 M=1 N=131072",
+   "path": "int8 + rotate",
+   "ms": 0.3816
+  },
+  {
+   "case": "decode B=1 M=1 N=131072",
+   "path": "int8 + rotate (cuBLAS)",
+   "ms": 0.3732
+  },
+  {
+   "case": "decode B=1 M=1 N=131072",
+   "path": "  rotate+quant only",
+   "ms": 0.0344
+  },
+  {
+   "case": "decode B=1 M=1 N=131072",
+   "path": "  two-kernel rotate+quant",
+   "ms": 0.0273
+  },
+  {
+   "case": "decode B=1 M=1 N=131072",
+   "path": "summary",
+   "topk_overlap": 0.998,
+   "speedup": 5.19,
+   "rotation_share": 0.092
+  },
+  {
+   "case": "prefill B=1 M=N=4096 causal",
+   "path": "fp32",
+   "ms": 304.4146
+  },
+  {
+   "case": "prefill B=1 M=N=4096 causal",
+   "path": "int8 kernel",
+   "ms": 21.2077,
+   "cfg": [
+    1,
+    128,
+    2,
+    8
+   ]
+  },
+  {
+   "case": "prefill B=1 M=N=4096 causal",
+   "path": "int8 + rotate",
+   "ms": 27.7993
+  },
+  {
+   "case": "prefill B=1 M=N=4096 causal",
+   "path": "int8 + rotate (cuBLAS)",
+   "ms": 26.1369
+  },
+  {
+   "case": "prefill B=1 M=N=4096 causal",
+   "path": "  rotate+quant only",
+   "ms": 6.5909
+  },
+  {
+   "case": "prefill B=1 M=N=4096 causal",
+   "path": "  two-kernel rotate+quant",
+   "ms": 5.0315
+  },
+  {
+   "case": "prefill B=1 M=N=4096 causal",
+   "path": "summary",
+   "topk_overlap": 0.9391,
+   "speedup": 11.65,
+   "rotation_share": 0.252
+  }
+ ]
+}

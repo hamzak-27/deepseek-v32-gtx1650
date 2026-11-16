@@ -151,11 +151,35 @@ checked against DeepSeek's code). Each window now starts with BOS. Mean over the
 - Limits: 4 of 61 layers (layer 4 on needs the 256 experts); fp32 activations in the linear layers (V3.2 serves them in
   fp8); one sequence length (8,192); output error before `o_proj`.
 
+## The full INT8 indexer step, Hadamard rotation included (`bench_indexer_e2e.py`, `hadamard_quant.py`)
+
+The accuracy results above use V3.2's Hadamard rotation before quantizing; the speed results timed the indexer kernel
+alone. Here a whole indexer step is timed from float inputs: rotate and quantize the queries, fold their scales into
+the head weights, rotate and quantize the new key(s) into the K-major cache, then `int8_index_v2`. V3.2 shapes
+(64 heads x 128 dims); keys have a few outlier channels.
+
+| Step | fp32 indexer | INT8 kernel only | INT8 + rotation (full step) | Speedup vs fp32 | Rotation share |
+|---|---|---|---|---|---|
+| decode, 4 sequences x 32k keys | 2.14 ms | 0.34 ms | 0.39 ms | **5.6x** | 9% |
+| decode, 1 sequence x 131k keys | 1.94 ms | 0.34 ms | 0.37 ms | **5.2x** | 9% |
+| prefill 4,096 tokens, causal | 304 ms | 21.2 ms | 26.1 ms | **11.7x** | 19-25% |
+
+- The rotation costs 9% of a decode step and about a fifth of a prefill step; INT8 stays 5-12x faster than fp32.
+- Rotation kernels (all match an fp64 reference: scales within 1e-6, INT8 values identical except ~1 in 250,000 off by
+  one at a rounding tie; `test_hadamard.py`). For 262k query vectors (prefill): quantization alone 1.81 ms; cuBLAS fp32
+  matmul then our quantizer **4.91 ms**; fused Triton kernel with the matrix (as a 64-point product after one butterfly:
+  the 128x128 matrix does not fit next to the tile in 64 KB of shared memory) 6.78 ms; fused butterfly (fast
+  Walsh-Hadamard, 18x fewer operations) 6.83 ms. On this GPU the butterfly's data shuffles between threads cost more
+  than the arithmetic it saves, so the fastest path is the unfused one. The memory floor is 1.08 ms.
+- Wiring check: the full INT8 path selects 99.8-99.9% of fp32's top-2048 keys in decode (prefill 93.9% on these
+  synthetic scores, which tie heavily around the cut-off; the accuracy on real weights is in the sections above).
+- Not covered: V3.2's FP8 path itself cannot run on this GPU, so this compares INT8 with fp32, not with FP8.
+
 ## Known limits
 
 - The K-major `act_quant` (v2) is 25-55% slower than the row-major one because its stores are scattered.
 - One GPU, one driver; Triton 3.2 (triton-windows), PyTorch 2.6, CUDA 12.4.
-- Fast Hadamard rotation (used before indexer quantization in V3.2) is not ported.
+- The Hadamard rotation is ported (`hadamard_quant.py`), but the fused kernels are slower than cuBLAS + quantization here.
 - Timings are kernel-only (`triton.testing.do_bench`), not a full model.
 
 ## Reproduce
@@ -166,6 +190,8 @@ pip install "triton-windows<3.3" pytest
 python roofline.py
 python -m pytest -q
 python bench.py
+python -m pytest -q test_hadamard.py
+python bench_indexer_e2e.py
 
 # accuracy experiments (need: pip install safetensors tokenizers pyarrow huggingface_hub transformers)
 huggingface-cli download Qwen/Qwen2.5-0.5B-Instruct
