@@ -211,4 +211,58 @@ if os.path.exists(dsl):
     grouped(ax, [f"Layer {l}" for l in range(4)], series, 1.25, "Attention output error vs full-precision indexer, % (lower is better)",
             legend="upper right")
     fig.savefig(os.path.join(OUT, "9_deepseek_layers.png")); plt.close(fig)
+syn = os.path.join(HERE, "results", "fmt_tails_synth.json"); dst = os.path.join(HERE, "results", "ds_tails.json")
+if os.path.exists(syn):
+    # 10. Replication of van Baalen et al. 2023 (Qualcomm), Fig. 5 (experiments/fmt_tails.py)
+    S = json.load(open(syn)); f5 = S["fig5"]; fm = ["INT8", "E2M5", "E3M4", "E4M3", "E5M2"]
+    col = {"INT8": S1, "E4M3": S2}
+    fig = frame("Replicating Qualcomm's INT8 vs FP8 result: it's all about the outliers",
+                "Bits of accuracy, log2(sigma / RMSE), one scale per sample. Dotted: the best possible 255-level quantizer",
+                foot="van Baalen et al. 2023 (arXiv 2303.17951) Fig. 5. Uniform, Gaussian within 0.2 bits of the paper; Student-t INT8 / E2M5 / E3M4\n"
+                     "depend on the sample's largest value (100,000 samples here). FP8 = sign + E exponent + M mantissa bits; INT8 = [-127, 127]")
+    ax = fig.add_axes([0.07, 0.19, 0.9, 0.6]); w = 0.16
+    for gi, (dist, lab) in enumerate((("uniform", "Uniform"), ("normal", "Gaussian"), ("t3", "Student-t, 3 d.o.f. (heavy tails)"))):
+        for j, f in enumerate(fm):
+            v = f5[dist][f]["absmax"]; x = gi + (j - 2) * w
+            ax.bar(x, v, w * 0.92, color=col.get(f, BASE), edgecolor=SURFACE, linewidth=2)
+            ax.text(x, v + 0.08, f"{v:.1f}", ha="center", fontsize=10.5, color=INK)
+            ax.text(x, -0.35, f, ha="center", fontsize=9.5, color=INK2)
+        lm = f5[dist]["lloyd_max"]; ax.plot([gi - 2.6 * w, gi + 2.6 * w], [lm, lm], ":", color=INK2, linewidth=1.5)
+        ax.text(gi, 9.0, lab, ha="center", fontsize=13, color=INK, weight="bold")
+    ax.set_xticks([]); ax.set_ylim(0, 9.4); ax.set_ylabel("Bits of accuracy (higher is better)")
+    ax.yaxis.grid(True, color=GRID, linewidth=1); ax.set_axisbelow(True); ax.spines["bottom"].set_visible(False)
+    fig.savefig(os.path.join(OUT, "10_fp8_int8_replication.png")); plt.close(fig)
+if os.path.exists(syn) and os.path.exists(dst):
+    # 11. Real DeepSeek-V3.2-Exp vectors on the same axis, before and after the Hadamard rotation (experiments/ds_tails.py)
+    sw = S["sweep_per_vector"]; D = [r for r in json.load(open(dst))["rows"] if r["tensor"] != "residual"]
+    adv = lambda r: r["INT8_per_vector"] - r["E4M3_per_vector"]
+    fig = frame("DeepSeek's indexer vectors favour INT8 even before the rotation",
+                "INT8's lead over FP8 (E4M3) in bits, one scale per 128 values, as V3.2 quantizes.\n"
+                "Hollow: the vector as computed. Filled: after the Hadamard rotation",
+                foot="DeepSeek-V3.2-Exp layers 0-3 from the released weights, 2 texts x 2,048 tokens, 512 positions each. Curve: Student-t\n"
+                     "vectors, 1 to infinite degrees of freedom. V3.2's power-of-2 FP8 scales give within 0.06 bits of plain E4M3")
+    ax = fig.add_axes([0.08, 0.2, 0.66, 0.58]); ax.set_xscale("log")
+    ax.axhspan(-0.6, 0, color="#f3f2ee", zorder=0); ax.axhline(0, color=INK2, linewidth=1)
+    ax.text(2.0, -0.38, "FP8 wins", fontsize=12, color=INK2)
+    from matplotlib.ticker import NullFormatter; ax.xaxis.set_minor_formatter(NullFormatter())
+    ax.plot([r["kurtosis"] for r in sw], [r["INT8"] - r["E4M3"] for r in sw], "--", color=MUTED, linewidth=2, zorder=2)
+    ax.text(11, 0.78, "Student-t (synthetic)", fontsize=11, color=INK2, rotation=-24)
+    l2 = next(r for r in D if r["tensor"] == "mlp_down_in" and r["layer"] == 2)["none"]
+    ax.annotate(f"MLP input, layer 2: FP8 ahead by {-adv(l2):.2f} bits.\nRotated: INT8 ahead by "
+                f"{adv(next(r for r in D if r['tensor'] == 'mlp_down_in' and r['layer'] == 2)['hadamard']):.1f}",
+                (l2["kurtosis"], adv(l2)), (9, -0.47), fontsize=10.5, color=INK, arrowprops=dict(arrowstyle="-", color=MUTED, lw=1))
+    ax.text(5.5, 2.12, "Indexer q, k: INT8 ahead by 1.4-1.9 bits\nbefore rotating, 1.9-2.0 after", fontsize=10.5, color=INK)
+    groups = (("idx_q", "Indexer queries", S1, "o"), ("idx_k", "Indexer keys", S1, "s"),
+              ("mlp_down_in", "MLP down_proj input", S2, "D"), ("attn_in", "Attention input", BASE, "^"), ("q_lat", "Query latent", BASE, "v"))
+    for t, lab, c, mk in groups:
+        for i, r in enumerate(x for x in D if x["tensor"] == t):
+            a, b = r["none"], r["hadamard"]
+            ax.annotate("", (b["kurtosis"], adv(b)), (a["kurtosis"], adv(a)), arrowprops=dict(arrowstyle="-|>", color=c, lw=1, alpha=0.55, shrinkA=5, shrinkB=5))
+            ax.plot(a["kurtosis"], adv(a), mk, ms=9, mfc=SURFACE, mec=c, mew=2, zorder=3, label=lab if i == 0 else None)
+            ax.plot(b["kurtosis"], adv(b), mk, ms=9, mfc=c, mec=SURFACE, mew=1.5, zorder=4)
+    ax.set_xlim(1.8, 80); ax.set_ylim(-0.6, 2.6); ax.set_xticks([2, 3, 5, 10, 20, 50]); ax.set_xticklabels(["2", "3\nGaussian", "5", "10", "20", "50"])
+    ax.set_xlabel("Tail weight: kurtosis of each 128-value vector, log scale"); ax.set_ylabel("INT8 bits minus FP8 bits")
+    ax.yaxis.grid(True, color=GRID, linewidth=1); ax.set_axisbelow(True)
+    ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1.0), frameon=False, fontsize=11.5, title="Hollow -> filled = rotated", title_fontsize=10.5)
+    fig.savefig(os.path.join(OUT, "11_deepseek_tails.png")); plt.close(fig)
 print("wrote", sorted(os.listdir(OUT)))

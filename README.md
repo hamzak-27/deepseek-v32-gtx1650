@@ -175,6 +175,58 @@ the head weights, rotate and quantize the new key(s) into the K-major cache, the
   synthetic scores, which tie heavily around the cut-off; the accuracy on real weights is in the sections above).
 - Not covered: V3.2's FP8 path itself cannot run on this GPU, so this compares INT8 with fp32, not with FP8.
 
+## INT8 vs FP8 by tail weight: Qualcomm's Figure 5, then DeepSeek's real vectors (`fmt_tails.py`, `ds_tails.py`, charts 10-11)
+
+van Baalen et al. 2023 ([FP8 versus INT8 for efficient deep learning inference](https://arxiv.org/abs/2303.17951))
+argue "it's all about the outliers": INT8 is more accurate on well-behaved data, and FP8-E4M3 on heavy tails. These
+are the paper's formats (Appendix A: sign + magnitude, subnormals, 255 values, free scale). Accuracy is log2(sigma / RMSE).
+
+**Replication (chart 10, one absmax scale per 100,000 samples).**
+
+| | INT8 | E2M5 | E3M4 | E4M3 | E5M2 | Lloyd-Max (best 255 levels) |
+|---|---|---|---|---|---|---|
+| Uniform | 7.99 | 7.38 | 6.38 | 5.35 | 4.30 | 7.99 (paper 8.0) |
+| Gaussian | 6.50 | 7.06 | 6.25 | 5.25 | 4.25 | 7.28 (paper 7.2) |
+| Student-t, 3 d.o.f. | 3.82 | 4.80 | 6.25 | 5.27 | 4.24 | 5.92 (paper 5.85) |
+
+- **Uniform and Gaussian:** within 0.2 bits of the paper's bars.
+- **Student-t:** the qualitative result holds: INT8 is worst, and FP8 formats beat it. The exact INT8 / E2M5 / E3M4 bars
+  depend on the largest value in the sample, which the paper doesn't state. Going from 10^4 to 10^7 samples, INT8
+  falls from 4.8 to 0.5 bits.
+- **The two bars that replicate exactly:** E4M3 (5.25) and E5M2 (4.25), which don't depend on the sample size.
+
+**V3.2's setting: one scale per 128 values.** V3.2's `act_quant` and our INT8 indexer use this, and it changes the answer.
+- A 128-value vector's peak can be at most sqrt(128) = 11.3 times its RMS, which caps INT8's error.
+- On Student-t vectors, E4M3 only catches INT8 at about 1.3 degrees of freedom, a kurtosis near 49. For comparison, a
+  Gaussian has kurtosis 3 and Student-t with 3 degrees of freedom about 12.
+
+**DeepSeek-V3.2-Exp's real vectors (chart 11).**
+- **Data:** layers 0-3, 2 texts × 2,048 tokens, 512 positions.
+- **Reading the numbers:** kurtosis before → after the Hadamard rotation, then each format's bits before → after.
+  E4M3 stays at 5.3-5.9 bits before rotating and 5.3 after.
+
+| Vectors (layers 0-3) | Kurtosis | INT8 bits | E4M3 bits |
+|---|---|---|---|
+| Indexer queries | 4.0-5.4 → 2.9 | 6.8-7.0 → 7.3 | 5.3 → 5.3 |
+| Indexer keys | 3.5-5.5 → 2.9-3.1 | 6.8-7.2 → 7.2-7.3 | 5.3 → 5.3 |
+| Attention input (RMSNorm(h)) | 26-31 → 2.5-2.6 | 6.0-6.1 → 7.4 | 5.5-5.6 → 5.3 |
+| MLP `down_proj` input (layers 0-2) | 47-65 → 2.0-2.3 | 5.7-5.8 → 7.5-7.7 | 5.7-5.9 → 5.3 |
+
+- **The real vectors lie on the synthetic Student-t curve.** At this block size, tail weight alone predicts which
+  format wins.
+- **The indexer's q and k** (the vectors V3.2 rotates) favour INT8 by 1.4-1.9 bits *before* rotating. Rotating widens
+  the lead to about 2 bits. So the rotation isn't what makes INT8 win in the indexer; it helps INT8 a little and leaves
+  E4M3 unchanged.
+- **Only the MLP's `down_proj` input crosses the line.**
+  - At layer 2, E4M3 is ahead by 0.28 bits. At layers 0-1, INT8 is ahead by just 0.04-0.11.
+  - A rotation moves it to INT8 by 2.4 bits.
+  - In V3.2 this input is quantized FP8 without a rotation.
+- **V3.2's power-of-2 (ue8m0) FP8 scales:** within 0.06 bits of plain E4M3, because FP8's relative error doesn't
+  depend on the scale.
+- **With one scale per tensor (the paper's setting),** FP8 wins on most of these tensors before rotating. A per-vector
+  rotation only partly helps there, because per-tensor error is dominated by vectors of very different sizes, which
+  this 128-point rotation doesn't change. The numbers are in `results/ds_tails.json`.
+
 ## Known limits
 
 - The K-major `act_quant` (v2) is 25-55% slower than the row-major one because its stores are scattered.
@@ -207,6 +259,8 @@ mkdir -p ds_weights && for f in model.safetensors.index.json:index.json tokenize
 python ds_knorm.py
 python ds_layer0.py
 python ds_layers.py      # downloads ~1.8 GB of fp8 weights once; ~7 min on a GTX 1650
+python fmt_tails.py      # Qualcomm Fig. 5 replication + Student-t sweep (CPU, ~3 min)
+python ds_tails.py       # real V3.2 vectors before / after rotation (~30 s, after ds_layers.py fetched the weights)
 cd .. && python make_charts.py
 ```
 
